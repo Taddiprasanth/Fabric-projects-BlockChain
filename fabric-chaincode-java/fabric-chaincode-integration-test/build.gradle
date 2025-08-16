@@ -1,0 +1,30 @@
+dependencies {
+    implementation project(':fabric-chaincode-docker')
+    implementation project(':fabric-chaincode-shim')
+    implementation 'org.json:json:20250517'
+}
+
+
+ test {
+    // Always run tests, even when nothing changed.
+    dependsOn 'cleanTest'
+
+    // Show test results.
+    testLogging {
+        events "passed", "skipped", "failed"
+        showExceptions = true
+        showCauses = true
+        showStandardStreams = true
+        exceptionFormat = "full"
+
+    }
+ }
+
+tasks.register('getLatestDockerImages') {
+    doLast {
+        providers.exec {
+            workingDir "."
+            commandLine "sh", "-c", "./getDockerImages.sh"
+        }
+    }
+}

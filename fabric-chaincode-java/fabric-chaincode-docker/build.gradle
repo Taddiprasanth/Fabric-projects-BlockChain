@@ -1,0 +1,63 @@
+/*
+ * Copyright IBM Corp. 2018 All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '9.4.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+import com.bmuschko.gradle.docker.tasks.image.*
+
+tasks.register('copyLib', Copy) {
+    dependsOn ':fabric-chaincode-shim:build'
+    from project(':fabric-chaincode-shim').configurations.runtimeClasspath
+    into('build/distributions/chaincode-java/lib')
+}
+
+tasks.register('copyShimJar', Copy) {
+    dependsOn copyLib
+    from project(':fabric-chaincode-shim').jar
+    into('build/distributions/chaincode-java/lib')
+}
+
+tasks.register('copyStartScript', Copy) {
+    dependsOn copyShimJar
+    from('start')
+    into('build/distributions/chaincode-java')
+}
+
+tasks.register('copyBuildScript', Copy) {
+    dependsOn copyStartScript
+    from('build.sh')
+    into('build/distributions/chaincode-java')
+}
+
+tasks.register('copyAllDeps', Copy) {
+    dependsOn copyBuildScript
+    copy {
+        from project(':fabric-chaincode-shim').getProjectDir()
+        into('build/distributions/chaincode-java/shim-src/fabric-chaincode-shim/')
+    }
+
+    copy {
+        from project.getParent().file("build.gradle")
+        into('build/distributions/chaincode-java/shim-src/')
+    }
+
+    copy {
+        from project.getParent().file("settings.gradle")
+        into('build/distributions/chaincode-java/shim-src/')
+    }
+}
+
+tasks.register('buildImage', DockerBuildImage) {
+    dependsOn copyAllDeps
+    inputDir = project.file('Dockerfile').parentFile
+    images = ['hyperledger/fabric-javaenv', 'hyperledger/fabric-javaenv:2.5', 'hyperledger/fabric-javaenv:amd64-2.5.7', 'hyperledger/fabric-javaenv:amd64-latest']
+}
