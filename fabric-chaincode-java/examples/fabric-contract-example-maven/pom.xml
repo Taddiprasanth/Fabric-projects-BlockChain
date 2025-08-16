@@ -1,0 +1,155 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>MyAssetContract</groupId>
+	<artifactId>MyAssetContract</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<properties>
+		
+		<maven.compiler.source>11</maven.compiler.source>
+        	<maven.compiler.target>11</maven.compiler.target>
+
+		<!-- Generic properties -->
+		<java.version>11</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<!-- fabric-chaincode-java -->
+		<fabric-chaincode-java.version>2.5.6</fabric-chaincode-java.version>
+
+		<!-- Logging -->
+		<logback.version>1.5.18</logback.version>
+		<slf4j.version>2.0.17</slf4j.version>
+
+		<!-- Test -->
+		<junit.jupiter.version>5.13.4</junit.jupiter.version>
+		<junit.platform.version>1.13.1</junit.platform.version>
+
+	</properties>
+	
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://www.jitpack.io</url>
+        </repository>
+    </repositories>
+
+	<dependencies>
+
+		<!-- fabric-chaincode-java -->
+		<dependency>
+			<groupId>org.hyperledger.fabric-chaincode-java</groupId>
+			<artifactId>fabric-chaincode-shim</artifactId>
+			<version>${fabric-chaincode-java.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hyperledger.fabric</groupId>
+			<artifactId>fabric-protos</artifactId>
+			<version>0.3.7</version>
+			<scope>compile</scope>
+		</dependency>
+
+
+		<!-- fabric-sdk-java -->
+
+		<!-- Logging with SLF4J & LogBack -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+            		<groupId>org.json</groupId>
+            		<artifactId>json</artifactId>
+            		<version>20231013</version>
+        		</dependency>
+		
+		<!-- Test Artifacts -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+		<dependency>
+    				<groupId>org.mockito</groupId>
+	    <artifactId>mockito-core</artifactId>
+	    <version>5.18.0</version>
+	    <scope>test</scope>
+	</dependency>
+
+	</dependencies>
+	<build>
+		<plugins>
+					<!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.5.3</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.14.0</version>
+				<configuration>
+					<release>${java.version}</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.6.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<finalName>chaincode</finalName>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.hyperledger.fabric.contract.ContractRouter</mainClass>
+								</transformer>
+							</transformers>
+							<filters>
+								<filter>
+									<!-- filter out signature files from signed dependencies, else repackaging fails with security ex -->
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>

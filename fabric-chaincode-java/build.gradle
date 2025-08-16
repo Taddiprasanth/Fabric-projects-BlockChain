@@ -1,0 +1,93 @@
+/*
+ * Copyright IBM Corp. 2018 All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+plugins {
+    id "com.github.ben-manes.versions" version "0.52.0"
+    id "com.diffplug.spotless" version "7.2.1"
+}
+
+version = '2.5.7'
+
+
+// If the nightly property is set, then this is the scheduled main
+// build - and we should publish this to artifactory
+//
+// Use the .dev.<number> format to match Maven convention
+if (properties.containsKey('NIGHTLY')) {
+    version = version + '.dev.' + getDate()
+    ext.nightly = true   // set property for use in subprojects
+} else {
+    ext.nightly = false
+}
+
+allprojects {
+    apply plugin: "com.diffplug.spotless"
+
+    repositories {
+        mavenCentral()
+    }
+
+    spotless {
+        format 'misc', {
+            target '*.gradle', '.gitattributes', '.gitignore'
+            trimTrailingWhitespace()
+            leadingTabsToSpaces()
+            endWithNewline()
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: "maven-publish"
+
+    group = 'org.hyperledger.fabric-chaincode-java'
+    version = rootProject.version
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    compileJava {
+        if (javaCompiler.get().metadata.languageVersion.canCompileOrRun(10)) {
+            options.release = 11
+        }
+    }
+
+    dependencies {
+        implementation 'commons-cli:commons-cli:1.10.0'
+        implementation 'commons-logging:commons-logging:1.3.5'
+
+        testImplementation platform('org.junit:junit-bom:5.13.4')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testImplementation 'org.assertj:assertj-core:3.27.4'
+        testImplementation 'org.mockito:mockito-core:5.18.0'
+        testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
+
+        testImplementation 'org.hamcrest:hamcrest-library:3.0'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    spotless {
+        java {
+            removeUnusedImports()
+            palantirJavaFormat('2.67.0').formatJavadoc(true)
+            formatAnnotations()
+        }
+    }
+}
+
+// Get the date in the reverse format for sorting
+static def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
+}
