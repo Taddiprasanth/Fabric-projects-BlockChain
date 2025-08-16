@@ -1,4 +1,4 @@
-# Financial Asset Management Contract - Maven
+# MyAsset Management Contract - Maven
 
 This is a Hyperledger Fabric chaincode example that implements a blockchain-based system to manage and track financial assets for a financial institution.
 
@@ -111,3 +111,4 @@ This contract is designed to meet financial institution requirements for:
 - `src/main/java/org/example/FinancialAssetContract.java` - Main contract implementation
 - `src/main/java/org/example/TransactionHistory.java` - Transaction history tracking
 - `src/test/java/org/example/FinancialAssetContractTest.java` - Comprehensive test suite
+
