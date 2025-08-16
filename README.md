@@ -5,9 +5,9 @@ This repository combines Hyperledger Fabric Samples and Java Chaincode Projects 
 
 📌 Repository Structure
 
-Fabric-projects-block/
-│                 
-├── fabric-samples/              ** # Hyperledger Fabric official sample network **
+Fabric-projects-block/                                               
+│                                       
+├── fabric-samples/              ** # Hyperledger Fabric official sample network **                                            
 │   ├── test-network/           **  # Test network scripts (create channel, deploy CC, etc.)    **        
 │   ├── chaincode/                **# Sample chaincodes (Go, JavaScript, etc.)**                  
 │   └── ...                     
